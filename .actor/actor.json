@@ -1,0 +1,94 @@
+{
+  "actorSpecification": 1,
+  "name": "company-research-analysis-agent",
+  "title": "Company Research & Analysis Agent",
+  "description": "Comprehensive company research actor that gathers detailed information about companies using their domain name. Provides insights on company overview, products, market presence, key personnel, financials, technology stack, and recent developments.",
+  "version": "1.0",
+  "minMemoryMbytes": 128,
+  "maxMemoryMbytes": 1024,
+  "buildTag": "latest",
+  "meta": {
+    "templateId": "python-start"
+  },
+  "input": "./input_schema.json",
+  "dockerfile": "./Dockerfile",
+  "storage": {
+    "dataset": {
+      "actorSpecification": 1,
+      "views": {
+        "overview": {
+          "title": "Company Report",
+          "transformation": {
+            "fields": ["domain", "generated_report"]
+          },
+          "display": {
+            "component": "table",
+            "properties": {
+              "domain": {
+                "label": "Domain",
+                "format": "string"
+              },
+              "generated_report": {
+                "label": "Generated Report",
+                "format": "string"
+              }
+            }
+          }
+        },
+        "raw_data": {
+          "title": "Raw Data",
+          "transformation": {
+            "fields": [
+              "domain",
+              "recent_news",
+              "linkedin_url",
+              "pitchbook_url",
+              "crunchbase_url",
+              "linkedin_data",
+              "pitchbook_data",
+              "crunchbase_data",
+              "funding_analysis"
+            ]
+          },
+          "display": {
+            "component": "table",
+            "properties": {
+              "domain": {
+                "label": "Domain",
+                "format": "string"
+              },
+              "linkedin_url": {
+                "label": "LinkedIn URL",
+                "format": "string"
+              },
+              "pitchbook_url": {
+                "label": "Pitchbook URL",
+                "format": "string"
+              },
+              "crunchbase_url": {
+                "label": "Crunchbase URL",
+                "format": "string"
+              },
+              "linkedin_data": {
+                "label": "LinkedIn Data",
+                "format": "string"
+              },
+              "pitchbook_data": {
+                "label": "Pitchbook Data",
+                "format": "string"
+              },
+              "crunchbase_data": {
+                "label": "Crunchbase Data",
+                "format": "string"
+              },
+              "funding_analysis": {
+                "label": "Funding Analysis",
+                "format": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "title": "Company Research Agent Input",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "domain": {
+      "title": "Company Domain",
+      "type": "string",
+      "description": "Domain name of the company to research (e.g., apple.com)",
+      "editor": "textfield",
+      "default": "apify.com"
+    },
+    "google_gemini_api_key": {
+      "title": "Google Gemini API Key",
+      "type": "string",
+      "description": "API key for accessing the Google Gemini API. Get one at https://aistudio.google.com/app/apikey.",
+      "editor": "textfield"
+    }
+  },
+  "required": ["domain", "google_gemini_api_key"]
+}

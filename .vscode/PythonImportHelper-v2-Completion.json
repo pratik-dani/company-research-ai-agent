@@ -1,0 +1,236 @@
+[
+    {
+        "label": "Actor",
+        "importPath": "apify",
+        "description": "apify",
+        "isExtraImport": true,
+        "detail": "apify",
+        "documentation": {}
+    },
+    {
+        "label": "validators",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "validators",
+        "description": "validators",
+        "detail": "validators",
+        "documentation": {}
+    },
+    {
+        "label": "asyncio",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "asyncio",
+        "description": "asyncio",
+        "detail": "asyncio",
+        "documentation": {}
+    },
+    {
+        "label": "re",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "re",
+        "description": "re",
+        "detail": "re",
+        "documentation": {}
+    },
+    {
+        "label": "Dict",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "List",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Optional",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Union",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "List",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "json",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "json",
+        "description": "json",
+        "detail": "json",
+        "documentation": {}
+    },
+    {
+        "label": "google.generativeai",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "google.generativeai",
+        "description": "google.generativeai",
+        "detail": "google.generativeai",
+        "documentation": {}
+    },
+    {
+        "label": "argparse",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "argparse",
+        "description": "argparse",
+        "detail": "argparse",
+        "documentation": {}
+    },
+    {
+        "label": "os",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "load_dotenv",
+        "importPath": "dotenv",
+        "description": "dotenv",
+        "isExtraImport": true,
+        "detail": "dotenv",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "base64",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "base64",
+        "description": "base64",
+        "detail": "base64",
+        "documentation": {}
+    },
+    {
+        "label": "mimetypes",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "mimetypes",
+        "description": "mimetypes",
+        "detail": "mimetypes",
+        "documentation": {}
+    },
+    {
+        "label": "get_funding_timeline",
+        "kind": 2,
+        "importPath": "src.main",
+        "description": "src.main",
+        "peekOfCode": "def get_funding_timeline(crunchbase_data: Dict) -> List[Dict]:\n    \"\"\"Structure funding data into timeline format\"\"\"\n    timeline = []\n    for round_info in crunchbase_data.get('funding_rounds_list', []):\n        # print(round_info)\n        try:\n            timeline.append({\n                \"date\": datetime.strptime(round_info['announced_on'], '%Y-%m-%d').isoformat(),\n                \"amount\": float(round_info.get('money_raised', {}).get('value_usd', 0)),\n                \"investors\": [i.get('names', None) for i in round_info.get('lead_investors', [])]",
+        "detail": "src.main",
+        "documentation": {}
+    },
+    {
+        "label": "generate_company_report",
+        "kind": 2,
+        "importPath": "src.main",
+        "description": "src.main",
+        "peekOfCode": "def generate_company_report(data: Dict, google_gemini_api_key: str) -> str:\n    \"\"\"Generate a comprehensive company report using Google's LLM.\"\"\"\n    # try:\n    from tools.llm_api import query_llm\n    sanitized_data = sanitize_data(data)\n    prompt = f\"\"\"You are a business analyst. Generate a comprehensive company report based on the following data. \n    Focus on key insights about the company's:\n    1. Overview and core business\n    2. Products and services\n    3. Market presence and performance",
+        "detail": "src.main",
+        "documentation": {}
+    },
+    {
+        "label": "sanitize_data",
+        "kind": 2,
+        "importPath": "src.main",
+        "description": "src.main",
+        "peekOfCode": "def sanitize_data(obj, seen=None):\n    \"\"\"\n    Remove circular references from the data structure\n    \"\"\"\n    if seen is None:\n        seen = set()\n    if isinstance(obj, dict):\n        # Create new dict with sanitized items\n        return {\n            key: sanitize_data(value, seen | {id(obj)})",
+        "detail": "src.main",
+        "documentation": {}
+    },
+    {
+        "label": "load_environment",
+        "kind": 2,
+        "importPath": "tools.llm_api",
+        "description": "tools.llm_api",
+        "peekOfCode": "def load_environment():\n    \"\"\"Load environment variables from .env files in order of precedence\"\"\"\n    # Order of precedence:\n    # 1. System environment variables (already loaded)\n    # 2. .env.local (user-specific overrides)\n    # 3. .env (project defaults)\n    # 4. .env.example (example configuration)\n    env_files = ['.env.local', '.env', '.env.example']\n    env_loaded = False\n    print(\"Current working directory:\", Path('.').absolute(), file=sys.stderr)",
+        "detail": "tools.llm_api",
+        "documentation": {}
+    },
+    {
+        "label": "encode_image_file",
+        "kind": 2,
+        "importPath": "tools.llm_api",
+        "description": "tools.llm_api",
+        "peekOfCode": "def encode_image_file(image_path: str) -> tuple[str, str]:\n    \"\"\"\n    Encode an image file to base64 and determine its MIME type.\n    Args:\n        image_path (str): Path to the image file\n    Returns:\n        tuple: (base64_encoded_string, mime_type)\n    \"\"\"\n    mime_type, _ = mimetypes.guess_type(image_path)\n    if not mime_type:",
+        "detail": "tools.llm_api",
+        "documentation": {}
+    },
+    {
+        "label": "create_llm_client",
+        "kind": 2,
+        "importPath": "tools.llm_api",
+        "description": "tools.llm_api",
+        "peekOfCode": "def create_llm_client(provider=\"openai\", google_gemini_api_key=None):\n    if provider == \"openai\":\n        api_key = os.getenv('OPENAI_API_KEY')\n        if not api_key:\n            raise ValueError(\"OPENAI_API_KEY not found in environment variables\")\n        return OpenAI(\n            api_key=api_key\n        )\n    elif provider == \"azure\":\n        api_key = os.getenv('AZURE_OPENAI_API_KEY')",
+        "detail": "tools.llm_api",
+        "documentation": {}
+    },
+    {
+        "label": "query_llm",
+        "kind": 2,
+        "importPath": "tools.llm_api",
+        "description": "tools.llm_api",
+        "peekOfCode": "def query_llm(prompt: str, client=None, model=None, google_gemini_api_key=None, provider=\"openai\", image_path: Optional[str] = None) -> Optional[str]:\n    \"\"\"\n    Query an LLM with a prompt and optional image attachment.\n    Args:\n        prompt (str): The text prompt to send\n        client: The LLM client instance\n        model (str, optional): The model to use\n        provider (str): The API provider to use\n        image_path (str, optional): Path to an image file to attach\n    Returns:",
+        "detail": "tools.llm_api",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "tools.llm_api",
+        "description": "tools.llm_api",
+        "peekOfCode": "def main():\n    parser = argparse.ArgumentParser(description='Query an LLM with a prompt')\n    parser.add_argument('--prompt', type=str, help='The prompt to send to the LLM', required=True)\n    parser.add_argument('--provider', choices=['openai','anthropic','gemini','local','deepseek','azure','siliconflow'], default='openai', help='The API provider to use')\n    parser.add_argument('--model', type=str, help='The model to use (default depends on provider)')\n    parser.add_argument('--image', type=str, help='Path to an image file to attach to the prompt')\n    args = parser.parse_args()\n    if not args.model:\n        if args.provider == 'openai':\n            args.model = \"gpt-4o\" ",
+        "detail": "tools.llm_api",
+        "documentation": {}
+    }
+]
