@@ -92,21 +92,27 @@
         "documentation": {}
     },
     {
-        "label": "google.generativeai",
-        "kind": 6,
+        "label": "create_llm_client",
+        "importPath": "tools.llm_api",
+        "description": "tools.llm_api",
         "isExtraImport": true,
-        "importPath": "google.generativeai",
-        "description": "google.generativeai",
-        "detail": "google.generativeai",
+        "detail": "tools.llm_api",
         "documentation": {}
     },
     {
-        "label": "argparse",
-        "kind": 6,
+        "label": "load_dotenv",
+        "importPath": "dotenv",
+        "description": "dotenv",
         "isExtraImport": true,
-        "importPath": "argparse",
-        "description": "argparse",
-        "detail": "argparse",
+        "detail": "dotenv",
+        "documentation": {}
+    },
+    {
+        "label": "load_dotenv",
+        "importPath": "dotenv",
+        "description": "dotenv",
+        "isExtraImport": true,
+        "detail": "dotenv",
         "documentation": {}
     },
     {
@@ -119,11 +125,20 @@
         "documentation": {}
     },
     {
-        "label": "load_dotenv",
-        "importPath": "dotenv",
-        "description": "dotenv",
+        "label": "genai",
+        "importPath": "google",
+        "description": "google",
         "isExtraImport": true,
-        "detail": "dotenv",
+        "detail": "google",
+        "documentation": {}
+    },
+    {
+        "label": "argparse",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "argparse",
+        "description": "argparse",
+        "detail": "argparse",
         "documentation": {}
     },
     {
@@ -175,7 +190,7 @@
         "kind": 2,
         "importPath": "src.main",
         "description": "src.main",
-        "peekOfCode": "def generate_company_report(data: Dict, google_gemini_api_key: str) -> str:\n    \"\"\"Generate a comprehensive company report using Google's LLM.\"\"\"\n    # try:\n    from tools.llm_api import query_llm\n    sanitized_data = sanitize_data(data)\n    prompt = f\"\"\"You are a business analyst. Generate a comprehensive company report based on the following data. \n    Focus on key insights about the company's:\n    1. Overview and core business\n    2. Products and services\n    3. Market presence and performance",
+        "peekOfCode": "def generate_company_report(data: Dict) -> str:\n    \"\"\"Generate a comprehensive company report using Google's LLM.\"\"\"\n    # try:\n    from tools.llm_api import query_llm\n    google_gemini_api_key = os.getenv('GOOGLE_API_KEY')\n    sanitized_data = sanitize_data(data)\n    prompt = f\"\"\"You are a business analyst. Generate a comprehensive company report based on the following data. \n    Focus on key insights about the company's:\n    1. Overview and core business\n    2. Products and services",
         "detail": "src.main",
         "documentation": {}
     },

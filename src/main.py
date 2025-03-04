@@ -11,6 +11,10 @@ import re
 from typing import Dict, List
 from datetime import datetime
 import json
+from tools.llm_api import create_llm_client
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 async def get_pitchbook_profile(Actor, url: str) -> Dict:
     """Get basic PitchBook profile info if available."""
@@ -224,10 +228,11 @@ async def scrape_crunchbase_org(Actor, url: str) -> Dict:
 
     # results = items[1]['organicResults']
 
-def generate_company_report(data: Dict, google_gemini_api_key: str) -> str:
+def generate_company_report(data: Dict) -> str:
     """Generate a comprehensive company report using Google's LLM."""
     # try:
     from tools.llm_api import query_llm
+    google_gemini_api_key = os.getenv('GOOGLE_API_KEY')
     sanitized_data = sanitize_data(data)
 
     prompt = f"""You are a business analyst. Generate a comprehensive company report based on the following data. 
@@ -240,20 +245,33 @@ def generate_company_report(data: Dict, google_gemini_api_key: str) -> str:
     6. Technology stack and digital presence
     7. Recent developments and news
     
-    Make it professional but easy to read. Use bullet points where appropriate.
+    Make it professional but easy to read. Use bullet points where appropriate. Give the report in a markdown format. Only give the report, no other text.
     
     Data: {json.dumps(sanitized_data, indent=2)}
     """
-
+    model = "gemini-2.0-flash"
+    # model = "gemini-2.0-pro-exp-02-05"
+    client = create_llm_client(provider="gemini", google_gemini_api_key=google_gemini_api_key)
+    response = client.models.count_tokens(
+        model=model,
+        contents=prompt
+    )
+    input_tokens = response.total_tokens
     report = query_llm(
         prompt=prompt,
         provider="gemini",
-        model="gemini-2.0-flash",
+        model=model,
         google_gemini_api_key=google_gemini_api_key,
         # max_tokens=2000
     )
     
-    return report
+    response = client.models.count_tokens(
+        model=model,
+        contents=report
+    )
+    output_tokens = response.total_tokens
+    tokens_used = input_tokens + output_tokens
+    return report, tokens_used
     # except Exception as e:
     #     Actor.log.error(f"Report generation failed: {str(e)}")
     #     return "Error generating report"
@@ -289,13 +307,6 @@ async def main() -> None:
         # Get input and validate
         actor_input = await Actor.get_input() or {}
         domain = actor_input.get('domain', '')
-        google_gemini_api_key = actor_input.get('google_gemini_api_key', None)
-        if not google_gemini_api_key:
-            Actor.log.error("Missing required parameter: google_gemini_api_key")
-            Actor.push_data({
-                "status": "error",
-                "message": "Google Gemini API Key is required"
-            })
 
         # Validate domain
         try:
@@ -303,7 +314,7 @@ async def main() -> None:
             Actor.log.info(f'Starting company research for domain: {domain}')
         except ValueError as e:
             Actor.log.error(f"Domain validation failed: {str(e)}")
-            Actor.push_data({
+            await Actor.push_data({
                 "status": "error",
                 "message": str(e)
             })
@@ -381,9 +392,11 @@ async def main() -> None:
 
             # Generate company report
             Actor.log.info('Generating comprehensive company report...')
-            report = generate_company_report(result, google_gemini_api_key)
+            report, tokens_used = generate_company_report(result)
             result['generated_report'] = report
             Actor.log.info('Report generation complete')
+            await Actor.charge(event_name="generate_report")
+
             # await Actor.push_data(result)
             report = {
                 "domain": domain,
@@ -396,7 +409,7 @@ async def main() -> None:
             Actor.log.error(f'Error during company research: {str(e)}')
             import traceback
             Actor.log.error(f'Traceback: {traceback.format_exc()}')
-            Actor.push_data({
+            await Actor.push_data({
                 "status": "error",
                 "message": str(e)
             })

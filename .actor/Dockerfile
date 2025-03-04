@@ -17,7 +17,7 @@ RUN echo "Python version:" \
  && pip --version \
  && echo "Installing dependencies:" \
  && pip install -r requirements.txt \
- && pip install -U google-generativeai \
+ && pip install -U "google-genai" \
  && echo "All installed Python packages:" \
  && pip freeze
 

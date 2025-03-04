@@ -1,7 +1,7 @@
 #!/usr/bin/env /workspace/tmp_windsurf/venv/bin/python3
 
-import google.generativeai as genai
-# from google import genai
+# import google.generativeai as genai
+from google import genai
 # from openai import OpenAI, AzureOpenAI
 # from anthropic import Anthropic
 import argparse
@@ -110,8 +110,9 @@ def create_llm_client(provider="openai", google_gemini_api_key=None):
         # api_key = os.getenv('GOOGLE_API_KEY')
         # if not api_key:
         #     raise ValueError("GOOGLE_API_KEY not found in environment variables")
-        genai.configure(api_key='AIzaSyCiuxLLS5utl5iObw4HXdVF52B0uQssXvw')
-        return genai
+        # genai.configure(api_key='AIzaSyCiuxLLS5utl5iObw4HXdVF52B0uQssXvw')
+        client = genai.Client(api_key=google_gemini_api_key)
+        return client
     elif provider == "local":
         return OpenAI(
             base_url="http://192.168.180.137:8006/v1",
@@ -217,7 +218,7 @@ def query_llm(prompt: str, client=None, model=None, google_gemini_api_key=None, 
             return response.content[0].text
             
         elif provider == "gemini":
-            model = client.GenerativeModel(model)
+            # model = client.GenerativeModel(model)
             if image_path:
                 file = genai.upload_file(image_path, mime_type="image/png")
                 chat_session = model.start_chat(
@@ -227,13 +228,20 @@ def query_llm(prompt: str, client=None, model=None, google_gemini_api_key=None, 
                     }]
                 )
             else:
-                chat_session = model.start_chat(
-                    history=[{
-                        "role": "user",
-                        "parts": [prompt]
-                    }]
+                # chat_session = model.start_chat(
+                #     history=[{
+                #         "role": "user",
+                #         "parts": [prompt]
+                #     }]
+                # )
+                chat_session = client.chats.create(
+                    model=model,
+                    # history=[{
+                    #     "role": "user",
+                    #     "parts": [prompt]
+                    # }]
                 )
-            response = chat_session.send_message(prompt)
+            response = chat_session.send_message(message=prompt)
             return response.text
             
     except Exception as e:

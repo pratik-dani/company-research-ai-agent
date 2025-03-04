@@ -39,7 +39,6 @@ This actor performs comprehensive company research and analysis by aggregating d
 | Parameter | Type | Description | Required |
 |-----------|------|-------------|-----------|
 | domain | string | Domain name of the company to research (e.g., apple.com) | Yes |
-| google_gemini_api_key | string | API key for accessing the Google Gemini API | Yes |
 
 
 Uses these actors on Apify:
