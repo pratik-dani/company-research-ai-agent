@@ -2,6 +2,27 @@
 
 This actor gathers comprehensive information about a company based on its domain name,
 including focus areas, products, markets, key personnel, and more.
+
+The actor coordinates multiple data sources and Apify actors to collect:
+- Company profiles from LinkedIn, Crunchbase, and PitchBook
+- Recent news articles via Google Search
+- Funding history and financial metrics
+- Key personnel information
+- Market presence and competitors
+
+The collected data is processed and analyzed to generate a comprehensive company report
+using Google's LLM.
+
+Key Functions:
+- validate_domain: Validates and cleans input domain name
+- get_company_news: Retrieves recent news articles about the company
+- get_professional_profiles: Finds company profiles on professional platforms
+- scrape_linkedin_company: Extracts data from LinkedIn company profile
+- scrape_crunchbase_org: Collects funding and company data from Crunchbase
+- get_pitchbook_profile: Gathers company information from PitchBook
+- generate_company_report: Creates comprehensive report using LLM
+- get_funding_timeline: Structures funding data chronologically
+- sanitize_data: Removes circular references from data structures
 """
 
 from apify import Actor
@@ -17,7 +38,15 @@ import os
 load_dotenv()
 
 async def get_pitchbook_profile(Actor, url: str) -> Dict:
-    """Get basic PitchBook profile info if available."""
+    """Get basic PitchBook profile info if available.
+    
+    Args:
+        Actor: Apify Actor instance
+        url: PitchBook company profile URL
+        
+    Returns:
+        Dict containing PitchBook profile data or empty dict if not found
+    """
     if not url:
         return {"profile_url": ""}
 
@@ -25,10 +54,6 @@ async def get_pitchbook_profile(Actor, url: str) -> Dict:
         "url": url,
     }
     
-    # run = client.actor("pratikdani/pitchbook-companies-scraper")
-    # run = run.call(run_input=run_input)
-    # items = client.dataset(run["defaultDatasetId"]).list_items().items
-
     actor_run = await Actor.call(actor_id="pratikdani/pitchbook-companies-scraper", run_input=run_input)
     if actor_run is None:
         raise RuntimeError('Actor task failed to start.')
@@ -41,7 +66,17 @@ async def get_pitchbook_profile(Actor, url: str) -> Dict:
     return {**items[0], "result_type": "pitchbook"} if items else {"result_type": "pitchbook"}
 
 async def validate_domain(domain: str) -> str:
-    """Validate and clean the input domain."""
+    """Validate and clean the input domain.
+    
+    Args:
+        domain: Raw domain name input
+        
+    Returns:
+        Cleaned and validated domain name
+        
+    Raises:
+        ValueError: If domain is invalid or empty
+    """
     if not domain:
         raise ValueError("Domain is required")
     
@@ -58,7 +93,20 @@ async def validate_domain(domain: str) -> str:
 
 
 async def get_company_news(Actor, domain: str) -> List[Dict]:
-    """Get recent news articles about the company using Google Search Scraper."""
+    """Get recent news articles about the company using Google Search Scraper.
+    
+    Args:
+        Actor: Apify Actor instance
+        domain: Company domain name
+        
+    Returns:
+        List of dicts containing news article details:
+        - title: Article title
+        - url: Article URL
+        - description: Article snippet
+        - emphasized_keywords: Highlighted terms
+        - date: Publication date
+    """
     company_name = domain.split('.')[0]
     search_query = f"{company_name} company news"
     
@@ -75,15 +123,6 @@ async def get_company_news(Actor, domain: str) -> List[Dict]:
     dataset_client = run_client.dataset()
     items = await dataset_client.list_items()
     dataset_items = items.items
-    # Proper async execution chain
-    # try:
-    # actor_call = client.actor("apify/google-search-scraper")
-    
-    # run = actor_call.call(run_input=run_input)
-    # dataset = client.dataset(run["defaultDatasetId"])
-    # # print(dataset.list_items().items)
-    # dataset_items = dataset.list_items().items
-
     results = dataset_items[1]['organicResults']
     news_articles = []
     for item in results:
@@ -96,12 +135,21 @@ async def get_company_news(Actor, domain: str) -> List[Dict]:
                 "date": item.get("date", "")
             })
     return news_articles[:]
-    # except Exception as e:
-    #     Actor.log.error(f"News collection failed: {str(e)}")
-    #     return []
 
 async def get_professional_profiles(Actor, domain: str) -> Dict:  # Changed to async client
-    """Find professional platform profiles using targeted Google searches."""
+    """Find professional platform profiles using targeted Google searches.
+    
+    Args:
+        Actor: Apify Actor instance
+        domain: Company domain name
+        
+    Returns:
+        Dict containing:
+        - linkedin: LinkedIn company profile URL
+        - crunchbase: Crunchbase profile URL
+        - pitchbook: PitchBook profile URL
+        - *_description: Profile descriptions for each platform
+    """
     search_queries = [
         f"site:crunchbase.com company {domain}",
         f"site:linkedin.com company {domain}",
@@ -114,13 +162,6 @@ async def get_professional_profiles(Actor, domain: str) -> Dict:  # Changed to a
         "resultsPerPage": 1
     }
     
-    # try:
-    # Proper async execution chain
-    # actor_call = client.actor("apify/google-search-scraper")
-    # run = actor_call.call(run_input=run_input)
-    # dataset = client.dataset(run["defaultDatasetId"])
-    # dataset_items = dataset.list_items().items
-
     actor_run = await Actor.call(actor_id="apify/google-search-scraper", run_input=run_input)
     if actor_run is None:
         raise RuntimeError('Actor task failed to start.')
@@ -132,7 +173,6 @@ async def get_professional_profiles(Actor, domain: str) -> Dict:  # Changed to a
 
 
     results = [j for j in [s.get('organicResults', [])[0] for s in dataset_items]]
-    # print(results)
 
     profiles = {
         "linkedin": "",
@@ -155,16 +195,21 @@ async def get_professional_profiles(Actor, domain: str) -> Dict:  # Changed to a
                 break
     
     return profiles
-    
-    # except Exception as e:
-    #     Actor.log.error(f"Profile detection failed: {str(e)}")
-    #     return {}
 
 def get_funding_timeline(crunchbase_data: Dict) -> List[Dict]:
-    """Structure funding data into timeline format"""
+    """Structure funding data into timeline format.
+    
+    Args:
+        crunchbase_data: Raw Crunchbase company data
+        
+    Returns:
+        List of funding rounds sorted by date:
+        - date: ISO format date
+        - amount: Funding amount in USD
+        - investors: List of lead investors
+    """
     timeline = []
     for round_info in crunchbase_data.get('funding_rounds_list', []):
-        # print(round_info)
         try:
             timeline.append({
                 "date": datetime.strptime(round_info['announced_on'], '%Y-%m-%d').isoformat(),
@@ -176,7 +221,15 @@ def get_funding_timeline(crunchbase_data: Dict) -> List[Dict]:
     return sorted(timeline, key=lambda x: x['date'])
 
 async def scrape_linkedin_company(Actor, url: str) -> Dict:
-    """Scrape LinkedIn company profile with enhanced employee data."""
+    """Scrape LinkedIn company profile with enhanced employee data.
+    
+    Args:
+        Actor: Apify Actor instance
+        url: LinkedIn company profile URL
+        
+    Returns:
+        Dict containing LinkedIn profile data or empty dict if not found
+    """
     if not url:
         return {}
         
@@ -193,22 +246,23 @@ async def scrape_linkedin_company(Actor, url: str) -> Dict:
     items = await dataset_client.list_items()
     items = items.items
 
-    
-    # run = client.actor("pratikdani/linkedin-company-profile-scraper")
-    # run = run.call(run_input=run_input)
-    # items = client.dataset(run["defaultDatasetId"]).list_items().items
-    # print(items)
     return {**items[0], "result_type": "linkedin"} if items else {"result_type": "linkedin"}
 
 async def scrape_crunchbase_org(Actor, url: str) -> Dict:
-    """Scrape Crunchbase with detailed funding analysis."""
+    """Scrape Crunchbase with detailed funding analysis.
+    
+    Args:
+        Actor: Apify Actor instance
+        url: Crunchbase organization URL
+        
+    Returns:
+        Dict containing Crunchbase profile data or empty dict if not found
+    """
     if not url:
         return {}
     
     run_input = {
         "url": url
-        # "maxDepth": 1,
-        # "proxyConfiguration": {"useApifyProxy": True}
     }
 
     actor_run = await Actor.call(actor_id="pratikdani/crunchbase-companies-scraper", run_input=run_input)
@@ -220,17 +274,19 @@ async def scrape_crunchbase_org(Actor, url: str) -> Dict:
     items = await dataset_client.list_items()
     items = items.items
     
-    # run = client.actor("pratikdani/crunchbase-companies-scraper")
-    # run = run.call(run_input=run_input)
-    # items = client.dataset(run["defaultDatasetId"]).list_items().items
-    # print(items)
     return {**items[0], "result_type": "crunchbase"} if items else {"result_type": "crunchbase"}
 
-    # results = items[1]['organicResults']
-
 def generate_company_report(data: Dict) -> str:
-    """Generate a comprehensive company report using Google's LLM."""
-    # try:
+    """Generate a comprehensive company report using Google's LLM.
+    
+    Args:
+        data: Collected company data from all sources
+        
+    Returns:
+        Tuple containing:
+        - Generated markdown report
+        - Number of tokens used
+    """
     from tools.llm_api import query_llm
     google_gemini_api_key = os.getenv('GOOGLE_API_KEY')
     sanitized_data = sanitize_data(data)
@@ -250,7 +306,6 @@ def generate_company_report(data: Dict) -> str:
     Data: {json.dumps(sanitized_data, indent=2)}
     """
     model = "gemini-2.0-flash"
-    # model = "gemini-2.0-pro-exp-02-05"
     client = create_llm_client(provider="gemini", google_gemini_api_key=google_gemini_api_key)
     response = client.models.count_tokens(
         model=model,
@@ -262,7 +317,6 @@ def generate_company_report(data: Dict) -> str:
         provider="gemini",
         model=model,
         google_gemini_api_key=google_gemini_api_key,
-        # max_tokens=2000
     )
     
     response = client.models.count_tokens(
@@ -272,13 +326,16 @@ def generate_company_report(data: Dict) -> str:
     output_tokens = response.total_tokens
     tokens_used = input_tokens + output_tokens
     return report, tokens_used
-    # except Exception as e:
-    #     Actor.log.error(f"Report generation failed: {str(e)}")
-    #     return "Error generating report"
 
 def sanitize_data(obj, seen=None):
-    """
-    Remove circular references from the data structure
+    """Remove circular references from the data structure.
+    
+    Args:
+        obj: Input data structure to sanitize
+        seen: Set of object IDs already processed (for recursion)
+        
+    Returns:
+        Sanitized data structure with circular references removed
     """
     if seen is None:
         seen = set()
@@ -302,7 +359,15 @@ def sanitize_data(obj, seen=None):
         return obj
 
 async def main() -> None:
-    """Main entry point for the Company Research Actor."""
+    """Main entry point for the Company Research Actor.
+    
+    Coordinates the collection and processing of company data from multiple sources:
+    1. Validates input domain
+    2. Collects news articles and professional profiles
+    3. Scrapes detailed data from LinkedIn, Crunchbase and PitchBook
+    4. Generates comprehensive company report
+    5. Handles errors and pushes results to output
+    """
     async with Actor:
         # Get input and validate
         actor_input = await Actor.get_input() or {}
@@ -366,7 +431,6 @@ async def main() -> None:
                     elif result_type == "pitchbook":
                         pitchbook_data = result
                         Actor.log.info('Pitchbook data collection complete')
-            # print(pitchbook_data)
             # Log if any data wasn't collected
             if not linkedin_data:
                 Actor.log.info('No LinkedIn profile found or data collection failed')
