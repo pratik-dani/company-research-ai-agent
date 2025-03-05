@@ -1,0 +1,84 @@
+{
+  "name": "Company Research Agent",
+  "logo": {
+    "light": "/logo/light.png",
+    "dark": "/logo/dark.png"
+  },
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#0D9373",
+    "light": "#07C983",
+    "dark": "#0D9373"
+  },
+  "topbarLinks": [
+    {
+      "name": "Support",
+      "url": "mailto:support@example.com"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Get Started",
+    "url": "https://apify.com/pratikdani/company-research-analysis-agent"
+  },
+  "anchors": [
+    {
+      "name": "API Reference",
+      "icon": "rectangle-terminal",
+      "url": "api-reference"
+    },
+    {
+      "name": "Architecture",
+      "icon": "square-stack",
+      "url": "architecture"
+    },
+    {
+      "name": "Examples",
+      "icon": "code",
+      "url": "examples"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "introduction",
+        "getting-started"
+      ]
+    },
+    {
+      "group": "Architecture",
+      "pages": [
+        "architecture/overview",
+        "architecture/crew",
+        "architecture/agents",
+        "architecture/tools"
+      ]
+    },
+    {
+      "group": "API Reference",
+      "pages": [
+        "api-reference/overview",
+        "api-reference/input",
+        "api-reference/output"
+      ]
+    },
+    {
+      "group": "Guides",
+      "pages": [
+        "guides/installation",
+        "guides/configuration",
+        "guides/usage"
+      ]
+    },
+    {
+      "group": "Examples",
+      "pages": [
+        "examples/basic-usage",
+        "examples/advanced-usage"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/yourusername/company-research"
+  }
+}

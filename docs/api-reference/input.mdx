@@ -5,7 +5,7 @@ description: 'Input schema and parameters for the Company Research & Analysis Ag
 
 # Input Parameters
 
-The Company Research & Analysis Agent accepts a simple input schema with a single required parameter.
+The Company Research & Analysis Agent uses a simple input schema that triggers the CrewAI research process.
 
 ## Input Schema
 
@@ -29,7 +29,12 @@ The Company Research & Analysis Agent accepts a simple input schema with a singl
 ## Parameters
 
 <ParamField path="domain" type="string" required>
-  The domain name of the company you want to research. This should be the root domain without any protocol or path.
+  The domain name of the company you want to research. This will be used by the AI agents to:
+  1. Search for company news
+  2. Find professional profiles
+  3. Gather LinkedIn data
+  4. Collect Crunchbase information
+  5. Extract PitchBook details
   
   **Examples:**
   - `apple.com`
@@ -37,16 +42,68 @@ The Company Research & Analysis Agent accepts a simple input schema with a singl
   - `tesla.com`
 </ParamField>
 
-## Input Validation
+## Input Processing
 
-The actor performs the following validation on the input:
-1. Checks if the domain is provided
-2. Removes protocol (http/https) if present
-3. Removes 'www.' prefix if present
-4. Removes any trailing path or query parameters
-5. Validates the domain format using the Python `validators` library
+The domain input goes through several processing steps:
 
-## Example Input
+1. **Validation**
+```python
+async def validate_domain(domain: str) -> str:
+    """
+    @param domain - Raw domain name input
+    @returns Cleaned and validated domain name
+    @throws ValueError if domain is invalid
+    """
+    if not domain:
+        raise ValueError("Domain is required")
+    
+    # Remove protocol and www
+    domain = re.sub(r'^(https?://)?(www\.)?', '', domain.lower())
+    
+    # Remove trailing path
+    domain = domain.split('/')[0]
+    
+    if not validators.domain(domain):
+        raise ValueError(f"Invalid domain: {domain}")
+    
+    return domain
+```
+
+2. **AI Agent Assignment**
+The validated domain is passed to the Research Specialist agent, which coordinates with other agents to gather information.
+
+## Environment Variables
+
+The following environment variables are required:
+
+<ParamField path="APIFY_TOKEN" type="string" required>
+  Your Apify API token for accessing web scraping capabilities
+</ParamField>
+
+<ParamField path="GOOGLE_API_KEY" type="string" required>
+  Google API key for the Gemini model used by AI agents
+</ParamField>
+
+## Error Cases
+
+The agent will fail with an error message if:
+
+1. **Domain Validation**
+   - No domain is provided
+   - Domain format is invalid
+   - Domain cannot be resolved
+
+2. **API Access**
+   - Invalid or missing API tokens
+   - Rate limits exceeded
+   - API service unavailable
+
+3. **AI Processing**
+   - LLM service unavailable
+   - Invalid response format
+   - Processing timeout
+
+## Example Usage
 
 ### Basic Input
 ```json
@@ -55,7 +112,7 @@ The actor performs the following validation on the input:
 }
 ```
 
-### Input with Extra Parts (automatically cleaned)
+### Input with Auto-Cleaning
 ```json
 {
   "domain": "https://www.microsoft.com/en-us"
@@ -63,13 +120,6 @@ The actor performs the following validation on the input:
 // Will be processed as: "microsoft.com"
 ```
 
-## Error Cases
-
-The actor will fail with an error message if:
-- No domain is provided
-- The domain format is invalid
-- The domain cannot be resolved
-
 <Note>
-The actor automatically cleans and normalizes the input domain, so you don't need to worry about the exact format. However, the domain must be valid and resolvable.
+The input system is designed to be user-friendly. It automatically cleans and normalizes the domain input, allowing users to provide URLs in various formats.
 </Note>

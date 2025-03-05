@@ -1,16 +1,35 @@
 ---
 title: 'Getting Started'
-description: 'Learn how to use the Company Research & Analysis Agent'
+description: 'Learn how to use the AI-powered Company Research Agent'
 ---
 
 # Getting Started
 
-This guide will help you start using the Company Research & Analysis Agent to gather comprehensive company information.
+This guide will help you start using the Company Research & Analysis Agent to gather comprehensive company information using AI agents.
 
 ## Prerequisites
 
 - An [Apify account](https://console.apify.com/sign-up)
 - API token from your Apify account (if using programmatically)
+- Google API key for the Gemini model
+- Python 3.8 or later
+
+## Installation
+
+### 1. Install Required Packages
+
+```bash
+pip install apify-client crewai python-dotenv nest-asyncio
+```
+
+### 2. Set Up Environment Variables
+
+Create a `.env` file in your project root:
+
+```bash
+APIFY_TOKEN=your_apify_token
+GOOGLE_API_KEY=your_google_api_key
+```
 
 ## Quick Start
 
@@ -20,40 +39,36 @@ This guide will help you start using the Company Research & Analysis Agent to ga
 2. Click "Try for Free" or "Use with Custom Data"
 3. Enter a company domain (e.g., `apple.com`)
 4. Click "Start"
-5. Wait for the results to be generated
+5. Wait for the AI agents to complete their research
 
-### Using the Apify API
-
-```bash
-curl --request POST \
-  --url https://api.apify.com/v2/acts/pratikdani~company-research-analysis-agent/runs?token=YOUR_API_TOKEN \
-  --header 'content-type: application/json' \
-  --data '{
-    "domain": "apple.com"
-  }'
-```
-
-### Using Python SDK
+### Using Python
 
 ```python
 from apify_client import ApifyClient
+from src.company_research_crew import CompanyResearchCrew
 
+# Initialize the Apify client
 client = ApifyClient('YOUR_API_TOKEN')
 
-run_input = {
-    'domain': 'apple.com'
-}
+# Initialize the research crew
+research_crew = CompanyResearchCrew(actor=actor)
 
-run = client.actor('pratikdani/company-research-analysis-agent').call(run_input=run_input)
+# Start the research process
+result = research_crew.crew().kickoff(
+    inputs={'domain': 'apple.com'}
+)
+
+# Print the results
+print(result)
 ```
 
 ## Understanding Results
 
-The actor provides two main views of the results:
+The agent provides two types of output:
 
-### 1. Company Report View
+### 1. Comprehensive Report
 
-A comprehensive markdown report containing:
+A detailed report containing:
 - Company overview
 - Products and services
 - Market presence
@@ -61,21 +76,41 @@ A comprehensive markdown report containing:
 - Financial metrics
 - Recent developments
 
-### 2. Raw Data View
+### 2. Structured Data
 
-Structured data including:
+Raw data including:
 - LinkedIn profile data
 - PitchBook investment data
 - Crunchbase company data
 - Recent news articles
 - Funding analysis
 
+## AI Agent Roles
+
+The system uses three specialized AI agents:
+
+1. **Research Specialist**
+   - Gathers company information
+   - Uses multiple data sources
+   - Validates data accuracy
+
+2. **Data Analyst**
+   - Processes raw data
+   - Identifies patterns
+   - Extracts insights
+
+3. **Report Writer**
+   - Structures information
+   - Highlights key findings
+   - Creates clear reports
+
 ## Next Steps
 
 - Learn about [configuration options](/guides/configuration)
 - Explore [usage examples](/examples/basic-usage)
 - Read the [API reference](/api-reference/overview)
+- Understand the [architecture](/architecture/overview)
 
 <Note>
-Remember to respect websites' terms of service and rate limits when using this actor.
+The AI agents work together to provide comprehensive research. Each agent specializes in a specific aspect of the research process, ensuring high-quality results.
 </Note>

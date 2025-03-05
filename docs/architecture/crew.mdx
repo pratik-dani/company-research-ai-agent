@@ -1,0 +1,158 @@
+---
+title: 'CrewAI Implementation'
+description: 'Detailed documentation of the CrewAI implementation'
+---
+
+# CrewAI Implementation
+
+The Company Research Agent uses CrewAI to coordinate multiple AI agents in gathering and analyzing company information. This document details the implementation of the `CompanyResearchCrew` class.
+
+## Class Overview
+
+```python
+@CrewBase
+class CompanyResearchCrew:
+    """
+    @class CompanyResearchCrew
+    @description Coordinates multiple AI agents for comprehensive company research
+    @param actor - Apify Actor instance for web scraping operations
+    """
+```
+
+## Initialization
+
+```python
+def __init__(self, actor):
+    self.actor = actor
+    self.llm = LLM(
+        model="gemini/gemini-2.0-flash-lite",
+        temperature=0.7,
+        api_key=os.getenv("GOOGLE_API_KEY")
+    )
+```
+
+## Tasks
+
+The crew executes three main tasks:
+
+### 1. Research Company
+
+```python
+@task
+def research_company(self) -> Task:
+    """
+    @task Research company details using domain name
+    @returns Task - Research task configuration
+    """
+    return Task(
+        description="""Research the company using their domain name: {domain}. 
+        Focus on key insights about the company's:
+        1. Overview and core business
+        2. Products and services
+        3. Market presence and performance
+        4. Key personnel and organization
+        5. Financial metrics and funding
+        6. Technology stack and digital presence
+        7. Recent developments and news
+        8. Major Competitors""",
+        agent=self.researcher()
+    )
+```
+
+### 2. Analyze Data
+
+```python
+@task
+def analyze_data(self) -> Task:
+    """
+    @task Analyze gathered company data
+    @returns Task - Analysis task configuration
+    """
+    return Task(
+        description="""Analyze the research findings to extract key insights about:
+        1. business focus,
+        2. product lineup,
+        3. market and demographic details,
+        4. funding rounds,
+        5. notable executives,
+        6. social media profiles,
+        7. a list of major competitors""",
+        agent=self.data_analyst()
+    )
+```
+
+### 3. Compile Report
+
+```python
+@task
+def compile_report(self) -> Task:
+    """
+    @task Compile findings into a structured report
+    @returns Task - Report compilation task configuration
+    """
+    return Task(
+        description="""Create a comprehensive report combining all research and analysis.
+        Structure the information clearly and highlight key findings.""",
+        expected_output="Final structured report in JSON format",
+        agent=self.content_compiler()
+    )
+```
+
+## Crew Configuration
+
+The crew is configured to work sequentially:
+
+```python
+@crew
+def crew(self) -> Crew:
+    """
+    @returns Crew - Configured CrewAI crew
+    """
+    return Crew(
+        agents=[
+            self.researcher(),
+            self.data_analyst(),
+        ],
+        tasks=[
+            self.research_company(),
+            self.analyze_data(),
+        ],
+        process=Process.sequential,
+        verbose=True,
+        max_rpm=100,
+        show_tools_output=False
+    )
+```
+
+## Usage Example
+
+```python
+# Initialize the crew with an Apify actor instance
+research_crew = CompanyResearchCrew(actor=actor)
+
+# Start the research process
+result = research_crew.crew().kickoff(
+    inputs={'domain': 'example.com'}
+)
+```
+
+## Performance Considerations
+
+The crew implementation includes several optimizations:
+
+- **Sequential Processing**: Tasks are executed in order to ensure data consistency
+- **Rate Limiting**: `max_rpm=100` prevents API overload
+- **Output Control**: `show_tools_output=False` reduces noise
+- **Verbose Mode**: Enabled for debugging and monitoring
+
+## Error Handling
+
+The crew handles errors at multiple levels:
+
+1. **Task Level**: Individual task failures
+2. **Agent Level**: Agent execution errors
+3. **Tool Level**: Data collection errors
+
+<Note>
+The crew implementation is designed to be maintainable and extensible. New tasks or agents can be added by following the existing patterns.
+</Note>

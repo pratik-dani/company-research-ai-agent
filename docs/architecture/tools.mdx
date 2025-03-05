@@ -1,0 +1,215 @@
+---
+title: 'Custom Tools'
+description: 'Documentation of custom CrewAI tools for company research'
+---
+
+# Custom Tools
+
+The Company Research Agent implements several custom tools that extend CrewAI's `BaseTool` class. These tools provide specialized functionality for gathering company information from various sources.
+
+## Tool Overview
+
+<CardGroup cols={2}>
+  <Card title="News Search" icon="newspaper">
+    Gathers recent news articles about companies
+  </Card>
+  <Card title="Professional Profiles" icon="id-card">
+    Finds company profiles on professional platforms
+  </Card>
+  <Card title="LinkedIn Scraper" icon="linkedin">
+    Extracts data from LinkedIn company pages
+  </Card>
+  <Card title="Crunchbase Scraper" icon="chart-line">
+    Collects funding and company data
+  </Card>
+  <Card title="PitchBook Scraper" icon="book">
+    Gathers detailed company information
+  </Card>
+  <Card title="Google Search" icon="magnifying-glass">
+    Performs targeted web searches
+  </Card>
+</CardGroup>
+
+## Company News Search Tool
+
+```python
+class CompanyNewsSearchTool(BaseTool):
+    """
+    @class CompanyNewsSearchTool
+    @description Searches for and retrieves recent news articles about a company
+    @param actor - Apify Actor instance
+    """
+    name: str = "Company News Search"
+    description: str = """
+    Searches for and retrieves recent news articles about a company using its domain name.
+    Returns articles with titles, URLs, descriptions, and publication dates.
+    """
+    actor: Actor = Field(description="Apify Actor instance")
+```
+
+### Usage Example
+
+```python
+news_tool = CompanyNewsSearchTool(actor=actor)
+news_articles = news_tool._run("example.com")
+```
+
+## Professional Profiles Tool
+
+```python
+class ProfessionalProfilesTool(BaseTool):
+    """
+    @class ProfessionalProfilesTool
+    @description Finds company profiles on professional platforms
+    @param actor - Apify Actor instance
+    """
+    name: str = "Professional Profiles Search"
+    description: str = """
+    Finds company profiles on LinkedIn, Crunchbase, and PitchBook using domain name.
+    Returns profile URLs and descriptions for each platform.
+    """
+    actor: Actor = Field(description="Apify Actor instance")
+```
+
+### Usage Example
+
+```python
+profiles_tool = ProfessionalProfilesTool(actor=actor)
+profiles = profiles_tool._run("example.com")
+```
+
+## LinkedIn Scraper Tool
+
+```python
+class LinkedInScraperTool(BaseTool):
+    """
+    @class LinkedInScraperTool
+    @description Scrapes detailed company information from LinkedIn
+    @param actor - Apify Actor instance
+    """
+    name: str = "LinkedIn Company Profile Scraper"
+    description: str = """
+    Scrapes detailed company information from LinkedIn company profiles.
+    Requires a valid LinkedIn company profile URL.
+    """
+    actor: Actor = Field(description="Apify Actor instance")
+```
+
+### Usage Example
+
+```python
+linkedin_tool = LinkedInScraperTool(actor=actor)
+company_data = linkedin_tool._run("https://linkedin.com/company/example")
+```
+
+## Crunchbase Scraper Tool
+
+```python
+class CrunchbaseScraperTool(BaseTool):
+    """
+    @class CrunchbaseScraperTool
+    @description Scrapes company information from Crunchbase
+    @param actor - Apify Actor instance
+    """
+    name: str = "Crunchbase Organization Scraper"
+    description: str = """
+    Scrapes detailed company information from Crunchbase organization profiles.
+    Requires a valid Crunchbase organization URL.
+    """
+    actor: Actor = Field(description="Apify Actor instance")
+```
+
+### Usage Example
+
+```python
+crunchbase_tool = CrunchbaseScraperTool(actor=actor)
+funding_data = crunchbase_tool._run("https://crunchbase.com/organization/example")
+```
+
+## PitchBook Scraper Tool
+
+```python
+class PitchBookScraperTool(BaseTool):
+    """
+    @class PitchBookScraperTool
+    @description Scrapes company information from PitchBook
+    @param actor - Apify Actor instance
+    """
+    name: str = "PitchBook Company Profile Scraper"
+    description: str = """
+    Scrapes detailed company information from PitchBook company profiles.
+    Requires a valid PitchBook company profile URL.
+    """
+    actor: Actor = Field(description="Apify Actor instance")
+```
+
+### Usage Example
+
+```python
+pitchbook_tool = PitchBookScraperTool(actor=actor)
+company_info = pitchbook_tool._run("https://pitchbook.com/profiles/company/example")
+```
+
+## Google Search Tool
+
+```python
+class GoogleSearchTool(BaseTool):
+    """
+    @class GoogleSearchTool
+    @description Performs Google searches for company information
+    @param actor - Apify Actor instance
+    """
+    name: str = "Google Search"
+    description: str = """
+    Searches google for a given query and returns the results
+    """
+    actor: Actor = Field(description="Apify Actor instance")
+```
+
+### Usage Example
+
+```python
+search_tool = GoogleSearchTool(actor=actor)
+search_results = search_tool._run("example company products")
+```
+
+## Common Implementation Pattern
+
+All tools follow a similar implementation pattern:
+
+1. **Synchronous Wrapper**
+```python
+def _run(self, input_param: str) -> Dict:
+    """Execute synchronously by creating a new event loop"""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        return loop.run_until_complete(self._async_run(input_param))
+    finally:
+        loop.close()
+```
+
+2. **Async Implementation**
+```python
+async def _async_run(self, input_param: str) -> Dict:
+    """Async implementation of the tool"""
+    # Tool-specific implementation
+```
+
+## Error Handling
+
+Tools implement comprehensive error handling:
+
+```python
+try:
+    actor_run = await self.actor.call(actor_id="actor_id", run_input=run_input)
+    if actor_run is None:
+        raise RuntimeError('Actor task failed to start.')
+except Exception as e:
+    logging.error(f"Error in tool execution: {str(e)}")
+    raise
+```
+
+<Note>
+All tools are designed to be thread-safe and can be used concurrently by multiple agents. They handle their own error cases and resource cleanup.
+</Note>
