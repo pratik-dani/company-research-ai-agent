@@ -1,100 +1,100 @@
 {
-    "$schema": "https://mintlify.com/docs.json",
-    "theme": "mint",
-    "name": "Company Research Agent",
-    "colors": {
-      "primary": "#0D9373",
-      "light": "#07C983",
-      "dark": "#0D9373"
-    },
-    "favicon": "/favicon.svg",
-    "navigation": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "icon": "book-open",
-          "groups": [
-            {
-              "group": "Getting Started",
-              "pages": [
-                "introduction",
-                "getting-started"
-              ]
-            },
-            {
-              "group": "Guides",
-              "pages": [
-                "guides/installation",
-                "guides/configuration",
-                "guides/usage"
-              ]
-            }
-          ]
-        },
-        {
-          "anchor": "API Reference",
-          "icon": "rectangle-terminal",
-          "groups": [
-            {
-              "group": "API Reference",
-              "pages": [
-                "api-reference/overview",
-                "api-reference/input",
-                "api-reference/output"
-              ]
-            }
-          ]
-        },
-        {
-          "anchor": "Architecture",
-          "icon": "sitemap",
-          "groups": [
-            {
-              "group": "Architecture",
-              "pages": [
-                "architecture/overview",
-                "architecture/crew",
-                "architecture/agents",
-                "architecture/tools"
-              ]
-            }
-          ]
-        },
-        {
-          "anchor": "Usage",
-          "icon": "code",
-          "groups": [
-            {
-              "group": "Usage",
-              "pages": [
-                "usage/basic-usage",
-                "usage/advanced-usage"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    "logo": {
-      "light": "/logo/light.svg",
-      "dark": "/logo/dark.svg"
-    },
-    "navbar": {
-      "links": [
-        {
-          "label": "Support",
-          "href": "mailto:pratik@datamagnet.co"
-        }
-      ],
-      "primary": {
-        "type": "button",
-        "label": "Get Started",
-        "href": "https://apify.com/pratikdani/company-research-analysis-agent"
+  "$schema": "https://mintlify.com/docs.json",
+  "integrations": {
+    "posthog": {
+      "apiKey": "phc_ixSGoKysWuqSAgKdfGeWqXrV0B3FjY5Ek0I0kkeZofV",
+      "apiHost": "https://us.i.posthog.com"
+    }
+  },
+  "theme": "mint",
+  "name": "Company Research Agent",
+  "colors": {
+    "primary": "#0D9373",
+    "light": "#07C983",
+    "dark": "#0D9373"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "anchors": [
+      {
+        "anchor": "Documentation",
+        "icon": "book-open",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": ["introduction", "getting-started"]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/installation",
+              "guides/configuration",
+              "guides/usage"
+            ]
+          }
+        ]
+      },
+      {
+        "anchor": "API Reference",
+        "icon": "rectangle-terminal",
+        "groups": [
+          {
+            "group": "API Reference",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/input",
+              "api-reference/output"
+            ]
+          }
+        ]
+      },
+      {
+        "anchor": "Architecture",
+        "icon": "sitemap",
+        "groups": [
+          {
+            "group": "Architecture",
+            "pages": [
+              "architecture/overview",
+              "architecture/crew",
+              "architecture/agents",
+              "architecture/tools"
+            ]
+          }
+        ]
+      },
+      {
+        "anchor": "Usage",
+        "icon": "code",
+        "groups": [
+          {
+            "group": "Usage",
+            "pages": ["usage/basic-usage", "usage/advanced-usage"]
+          }
+        ]
       }
-    },
-    "footer": {
-      "socials": {
-        "github": "https://github.com/pratikdani/company-research"
+    ]
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:pratik@datamagnet.co"
       }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get Started",
+      "href": "https://apify.com/pratikdani/company-research-analysis-agent"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/pratikdani/company-research"
     }
   }
+}
