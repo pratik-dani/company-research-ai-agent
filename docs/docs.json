@@ -65,7 +65,7 @@
           "icon": "code",
           "groups": [
             {
-              "group": "usage",
+              "group": "Usage",
               "pages": [
                 "usage/basic-usage",
                 "usage/advanced-usage"
