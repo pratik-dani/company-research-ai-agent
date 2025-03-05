@@ -27,6 +27,11 @@
       "url": "api-reference"
     },
     {
+      "name": "Architecture",
+      "icon": "square-stack",
+      "url": "architecture"
+    },
+    {
       "name": "Examples",
       "icon": "code",
       "url": "examples"
@@ -38,6 +43,15 @@
       "pages": [
         "introduction",
         "getting-started"
+      ]
+    },
+    {
+      "group": "Architecture",
+      "pages": [
+        "architecture/overview",
+        "architecture/crew",
+        "architecture/agents",
+        "architecture/tools"
       ]
     },
     {
