@@ -1,5 +1,8 @@
 # Company Research & Analysis Actor
 
+## Mintlify Documentation
+[![Mintlify Docs](https://img.shields.io/badge/docs-mintlify-blue.svg)](https://company-research-agent.pratikdani.com/)
+
 ## Overview
 This actor performs comprehensive company research and analysis by aggregating data from multiple authoritative sources including LinkedIn, PitchBook, and Crunchbase. It collects detailed information about company profiles, financials, key personnel, market presence, investments, competitors, and recent developments. The consolidated data provides valuable insights for business intelligence, market research, competitive analysis, and investment decision making.
 
@@ -40,17 +43,114 @@ This actor performs comprehensive company research and analysis by aggregating d
 |-----------|------|-------------|-----------|
 | domain | string | Domain name of the company to research (e.g., apple.com) | Yes |
 
+## Architecture
 
-Uses these actors on Apify:
-- https://apify.com/apify/google-search-scraper
-- https://apify.com/pratikdani/linkedin-company-profile-scraper
-- https://apify.com/pratikdani/crunchbase-companies-scraper
-- https://apify.com/pratikdani/pitchbook-companies-scraper
+The system uses CrewAI to coordinate three specialized agents:
 
+1. **Research Specialist**: Gathers company information using custom tools
+2. **Data Analyst**: Processes and analyzes the collected data
+3. **Report Writer**: Compiles findings into structured reports
+
+## Prerequisites
+
+- Python 3.8 or later
+- Apify account and API token
+- Google API key for Gemini model
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/company-research.git
+cd company-research
+```
+
+2. Create a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your API keys
+```
+
+## Usage
+
+### Python
+
+```python
+from apify_client import ApifyClient
+from src.company_research_crew import CompanyResearchCrew
+
+# Initialize the Apify client
+client = ApifyClient('YOUR_API_TOKEN')
+
+# Initialize the research crew
+research_crew = CompanyResearchCrew(actor=actor)
+
+# Start the research process
+result = research_crew.crew().kickoff(
+    inputs={'domain': 'apple.com'}
+)
+
+print(result)
+```
+
+### Web Interface
+
+1. Visit [Apify](https://console.apify.com/actors/pratikdani/company-research-analysis-agent)
+2. Click "Try for Free"
+3. Enter a company domain
+4. Click "Start"
+
+## Output
+
+The actor provides:
+
+1. **Comprehensive Report**
+   - Company overview
+   - Products and services
+   - Market presence
+   - Key personnel
+   - Financial metrics
+   - Recent developments
+
+2. **Structured Data**
+   - LinkedIn profile data
+   - PitchBook investment data
+   - Crunchbase company data
+   - Recent news articles
+   - Funding analysis
+
+## Documentation
+
+Visit our [documentation](docs/introduction.mdx) for detailed information about:
+- Getting started
+- API reference
+- Configuration options
+- Example usage
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Sample Output
-
-
 
 ## Apify Company Report - March 4, 2025
 
@@ -126,3 +226,9 @@ This report provides an overview of Apify, a web scraping and automation platfor
 **Summary and Key Insights**
 
 Apify is a growing company in the web scraping and automation space. It has a strong technology platform, a growing user base, and is focused on integrating with emerging technologies like AI agents.  Recent funding and product launches suggest a period of expansion and innovation.  The company's focus on developer experience and community engagement is a positive indicator for future growth.
+
+Uses these actors on Apify:
+- https://apify.com/apify/google-search-scraper
+- https://apify.com/pratikdani/linkedin-company-profile-scraper
+- https://apify.com/pratikdani/crunchbase-companies-scraper
+- https://apify.com/pratikdani/pitchbook-companies-scraper
