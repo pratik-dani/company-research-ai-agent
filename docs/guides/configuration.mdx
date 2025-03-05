@@ -1,0 +1,143 @@
+---
+title: 'Configuration'
+description: 'Configure the Company Research & Analysis Agent for your needs'
+---
+
+# Configuration
+
+Learn how to configure the Company Research & Analysis Agent for optimal performance and customization.
+
+## Actor Configuration
+
+The actor's behavior can be configured through the `actor.json` file:
+
+```json
+{
+  "actorSpecification": 1,
+  "name": "company-research-analysis-agent",
+  "title": "Company Research & Analysis Agent",
+  "version": "1.0",
+  "minMemoryMbytes": 128,
+  "maxMemoryMbytes": 1024
+}
+```
+
+### Memory Settings
+
+<ParamField path="minMemoryMbytes" type="number">
+  Minimum memory allocation (default: 128MB)
+</ParamField>
+
+<ParamField path="maxMemoryMbytes" type="number">
+  Maximum memory allocation (default: 1024MB)
+</ParamField>
+
+## Dataset Views
+
+The actor provides two configurable dataset views:
+
+### Overview View
+Shows the domain and generated report:
+```json
+{
+  "views": {
+    "overview": {
+      "title": "Company Report",
+      "transformation": {
+        "fields": ["domain", "generated_report"]
+      }
+    }
+  }
+}
+```
+
+### Raw Data View
+Shows all collected data:
+```json
+{
+  "views": {
+    "raw_data": {
+      "title": "Raw Data",
+      "transformation": {
+        "fields": [
+          "domain",
+          "recent_news",
+          "linkedin_data",
+          "pitchbook_data",
+          "crunchbase_data",
+          "funding_analysis"
+        ]
+      }
+    }
+  }
+}
+```
+
+## Storage Configuration
+
+Data is stored in Apify's storage:
+
+- **Default Dataset**: Contains all scraped data
+- **Key-Value Store**: Stores intermediate results
+- **Request Queue**: Manages scraping requests
+
+## Performance Optimization
+
+### Memory Usage
+
+Adjust memory based on your needs:
+```json
+{
+  "minMemoryMbytes": 256,  // For basic scraping
+  "maxMemoryMbytes": 2048  // For large companies
+}
+```
+
+### Concurrent Operations
+
+The actor manages concurrent requests to different data sources:
+- LinkedIn scraping
+- Crunchbase data collection
+- PitchBook profile extraction
+- Google News searches
+
+## Error Handling
+
+Configure error handling in the actor:
+
+```python
+# Retry configuration
+MAX_RETRIES = 3
+RETRY_DELAY = 1000  # milliseconds
+
+# Timeout settings
+REQUEST_TIMEOUT = 30000  # milliseconds
+PAGE_LOAD_TIMEOUT = 60000  # milliseconds
+```
+
+## Proxy Configuration
+
+The actor uses Apify's proxy services:
+
+```python
+# Proxy configuration
+PROXY_CONFIGURATION = {
+    'useApifyProxy': True,
+    'groups': ['RESIDENTIAL'],
+    'countryCode': 'US'
+}
+```
+
+## Rate Limiting
+
+Configure rate limits to respect target websites:
+
+```python
+# Rate limiting configuration
+REQUESTS_PER_MINUTE = 30
+CONCURRENT_REQUESTS = 5
+```
+
+<Note>
+These settings provide a good balance between performance and reliability. Adjust them based on your specific needs and target website limitations.
+</Note>

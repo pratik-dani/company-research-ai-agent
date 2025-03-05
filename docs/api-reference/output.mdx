@@ -1,0 +1,163 @@
+---
+title: 'Output Format'
+description: 'Understanding the output data structure of the Company Research & Analysis Agent'
+---
+
+# Output Format
+
+The Company Research & Analysis Agent provides output in two views: Overview (Company Report) and Raw Data.
+
+## Overview View
+
+The overview provides a formatted markdown report containing key insights about the company.
+
+```json
+{
+  "domain": "string",
+  "generated_report": "string (markdown)"
+}
+```
+
+### Report Sections
+
+The generated report includes:
+1. Overview and Core Business
+2. Products and Services
+3. Market Presence and Performance
+4. Key Personnel and Organization
+5. Financial Metrics and Funding
+6. Technology Stack and Digital Presence
+7. Recent Developments and News
+8. Summary and Key Insights
+
+## Raw Data View
+
+The raw data view provides detailed structured data from all sources.
+
+```json
+{
+  "domain": "string",
+  "recent_news": [
+    {
+      "title": "string",
+      "url": "string",
+      "description": "string",
+      "emphasized_keywords": ["string"],
+      "date": "string"
+    }
+  ],
+  "linkedin_data": {
+    "employee_count": "number",
+    "followers": "number",
+    "locations": ["string"],
+    "description": "string",
+    "specialties": ["string"],
+    "website": "string",
+    "industry": "string",
+    "company_size": "string",
+    "headquarters": "string",
+    "founded": "string",
+    "company_type": "string"
+  },
+  "pitchbook_data": {
+    "company_name": "string",
+    "description": "string",
+    "founded_date": "string",
+    "total_funding": "number",
+    "last_financing_date": "string",
+    "last_financing_type": "string",
+    "last_financing_amount": "number",
+    "investors": ["string"],
+    "competitors": ["string"]
+  },
+  "crunchbase_data": {
+    "name": "string",
+    "description": "string",
+    "founded_date": "string",
+    "funding_rounds": [
+      {
+        "date": "string",
+        "amount": "number",
+        "type": "string",
+        "investors": ["string"]
+      }
+    ],
+    "total_funding": "number",
+    "acquisitions": [
+      {
+        "acquired_company": "string",
+        "date": "string",
+        "amount": "number"
+      }
+    ]
+  },
+  "funding_analysis": {
+    "total_raised": "number",
+    "number_of_rounds": "number",
+    "average_round_size": "number",
+    "largest_round": {
+      "amount": "number",
+      "date": "string",
+      "type": "string"
+    },
+    "funding_timeline": [
+      {
+        "date": "string",
+        "amount": "number",
+        "type": "string",
+        "details": "string"
+      }
+    ]
+  },
+  "data_collection_date": "string",
+  "linkedin_url": "string",
+  "pitchbook_url": "string",
+  "crunchbase_url": "string"
+}
+```
+
+## Dataset Views
+
+The actor provides two dataset views:
+
+### 1. Overview View
+```json
+{
+  "fields": ["domain", "generated_report"],
+  "display": {
+    "component": "table",
+    "properties": {
+      "domain": {
+        "label": "Domain",
+        "format": "string"
+      },
+      "generated_report": {
+        "label": "Generated Report",
+        "format": "string"
+      }
+    }
+  }
+}
+```
+
+### 2. Raw Data View
+```json
+{
+  "fields": [
+    "domain",
+    "recent_news",
+    "linkedin_data",
+    "pitchbook_data",
+    "crunchbase_data",
+    "funding_analysis"
+  ],
+  "display": {
+    "component": "table"
+  }
+}
+```
+
+<Note>
+All dates in the output are in ISO 8601 format (YYYY-MM-DD).
+Monetary values are in USD unless otherwise specified.
+</Note>

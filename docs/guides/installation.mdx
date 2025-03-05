@@ -1,0 +1,96 @@
+---
+title: 'Installation'
+description: 'How to install and set up the Company Research & Analysis Agent'
+---
+
+# Installation
+
+The Company Research & Analysis Agent can be used in two ways:
+1. Through the Apify platform (no installation required)
+2. Running locally using Docker
+
+## Using Apify Platform
+
+No installation is required. Simply:
+1. Visit [Apify Console](https://console.apify.com)
+2. Search for "Company Research & Analysis Agent"
+3. Click "Try for Free" or "Use with Custom Data"
+
+## Running Locally
+
+### Prerequisites
+
+- [Docker](https://www.docker.com/get-started)
+- [Git](https://git-scm.com/downloads)
+
+### Steps
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/company-research.git
+cd company-research
+```
+
+2. Build the Docker image:
+```bash
+docker build -t company-research-agent .
+```
+
+3. Create a `.env` file with your API keys:
+```bash
+cp .env.example .env
+# Edit .env with your API keys
+```
+
+4. Run the container:
+```bash
+docker run -it --env-file .env company-research-agent
+```
+
+## Environment Variables
+
+The following environment variables are required:
+
+<ParamField path="APIFY_TOKEN" type="string" required>
+  Your Apify API token
+</ParamField>
+
+<ParamField path="OPENAI_API_KEY" type="string" required>
+  OpenAI API key for report generation
+</ParamField>
+
+## Verifying Installation
+
+To verify your installation:
+
+1. Run a test query:
+```bash
+docker run -it --env-file .env company-research-agent --domain apify.com
+```
+
+2. Check the output:
+- Results should appear in the `apify_storage` directory
+- No error messages should be present
+- The report should contain company information
+
+## Troubleshooting
+
+Common issues and solutions:
+
+### Docker Build Fails
+- Ensure Docker is running
+- Check internet connection
+- Verify Dockerfile syntax
+
+### Missing API Keys
+- Copy `.env.example` to `.env`
+- Add required API keys
+- Ensure keys have correct permissions
+
+### Memory Issues
+- Increase Docker memory limit
+- Check available system resources
+
+<Note>
+For production use, we recommend using the Apify platform which provides automatic scaling, monitoring, and proxy management.
+</Note>

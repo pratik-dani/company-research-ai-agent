@@ -1,0 +1,163 @@
+---
+title: 'Basic Usage Examples'
+description: 'Simple examples of using the Company Research & Analysis Agent'
+---
+
+# Basic Usage Examples
+
+Here are some basic examples of how to use the Company Research & Analysis Agent in different scenarios.
+
+## Web Interface Example
+
+The simplest way to use the actor is through the Apify web interface.
+
+1. Visit the actor's page
+2. Enter a domain name
+3. Click "Start"
+
+<Frame>
+  <img src="/images/web-interface.png" alt="Web Interface Example" />
+</Frame>
+
+## Command Line Example
+
+Using curl to start an actor run:
+
+```bash
+curl --request POST \
+  --url https://api.apify.com/v2/acts/pratikdani~company-research-analysis-agent/runs?token=YOUR_API_TOKEN \
+  --header 'content-type: application/json' \
+  --data '{
+    "domain": "apify.com"
+  }'
+```
+
+## Python Example
+
+Simple script to research a company:
+
+```python
+from apify_client import ApifyClient
+
+# Initialize the client
+client = ApifyClient('YOUR_API_TOKEN')
+
+# Run the actor
+run_input = {
+    'domain': 'apify.com'
+}
+
+# Start the run
+run = client.actor('pratikdani/company-research-analysis-agent').call(run_input=run_input)
+
+# Wait for the run to finish and fetch results
+results = client.dataset(run['defaultDatasetId']).list_items().items
+
+# Print the generated report
+print(results[0]['generated_report'])
+```
+
+## Node.js Example
+
+Using the actor with Node.js:
+
+```javascript
+const { ApifyClient } = require('apify-client');
+
+// Initialize the client
+const client = new ApifyClient({
+    token: 'YOUR_API_TOKEN',
+});
+
+async function researchCompany() {
+    // Start the actor and wait for it to finish
+    const run = await client.actor('pratikdani/company-research-analysis-agent').call({
+        domain: 'apify.com'
+    });
+
+    // Fetch and print results
+    const { items } = await client.dataset(run.defaultDatasetId).listItems();
+    console.log(items[0].generated_report);
+}
+
+researchCompany();
+```
+
+## Batch Processing Example
+
+Research multiple companies at once:
+
+```python
+from apify_client import ApifyClient
+import asyncio
+
+async def research_companies(domains):
+    client = ApifyClient('YOUR_API_TOKEN')
+    results = []
+    
+    for domain in domains:
+        try:
+            # Start the actor run
+            run = await client.actor('pratikdani/company-research-analysis-agent').call(
+                run_input={'domain': domain}
+            )
+            
+            # Get the results
+            items = await client.dataset(run['defaultDatasetId']).list_items()
+            results.append(items.items[0])
+            
+        except Exception as e:
+            print(f"Error processing {domain}: {str(e)}")
+    
+    return results
+
+# List of companies to research
+domains = [
+    'apify.com',
+    'microsoft.com',
+    'apple.com'
+]
+
+# Run the batch process
+results = asyncio.run(research_companies(domains))
+
+# Process results
+for result in results:
+    print(f"Company: {result['domain']}")
+    print(f"Report Length: {len(result['generated_report'])} characters")
+    print("---")
+```
+
+## Save Results Example
+
+Save the research results to a file:
+
+```python
+import json
+from apify_client import ApifyClient
+
+def save_company_research(domain, output_file):
+    # Initialize the client
+    client = ApifyClient('YOUR_API_TOKEN')
+    
+    # Run the actor
+    run = client.actor('pratikdani/company-research-analysis-agent').call(
+        run_input={'domain': domain}
+    )
+    
+    # Get results
+    results = client.dataset(run['defaultDatasetId']).list_items().items[0]
+    
+    # Save to file
+    with open(output_file, 'w') as f:
+        json.dump(results, f, indent=2)
+        
+    print(f"Results saved to {output_file}")
+
+# Use the function
+save_company_research('apify.com', 'apify_research.json')
+```
+
+<Note>
+Remember to replace 'YOUR_API_TOKEN' with your actual Apify API token in all examples.
+</Note>

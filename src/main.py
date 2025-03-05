@@ -35,6 +35,10 @@ import json
 from tools.llm_api import create_llm_client
 from dotenv import load_dotenv
 import os
+from src.company_research_crew import CompanyResearchCrew
+import warnings
+
+warnings.filterwarnings("ignore")
 load_dotenv()
 
 async def get_pitchbook_profile(Actor, url: str) -> Dict:
@@ -90,7 +94,6 @@ async def validate_domain(domain: str) -> str:
         raise ValueError(f"Invalid domain: {domain}")
     
     return domain
-
 
 async def get_company_news(Actor, domain: str) -> List[Dict]:
     """Get recent news articles about the company using Google Search Scraper.
@@ -358,6 +361,22 @@ def sanitize_data(obj, seen=None):
         # Return non-container objects as-is
         return obj
 
+import re
+def extract_dict_from_json(json_str: str) -> Dict:
+    """Extract a dictionary from a JSON string.
+    
+    Args:
+        json_str: JSON string to extract dictionary from
+    
+    Returns:
+        Dictionary containing the extracted data
+    """
+    try:
+        json_string = re.search(r'```json(.*)```', json_str, re.DOTALL).group(1)
+        return json.loads(json_string)
+    except json.JSONDecodeError:
+        raise ValueError("Invalid JSON string")
+
 async def main() -> None:
     """Main entry point for the Company Research Actor.
     
@@ -368,113 +387,37 @@ async def main() -> None:
     4. Generates comprehensive company report
     5. Handles errors and pushes results to output
     """
-    async with Actor:
-        # Get input and validate
+    async with Actor as actor:
+        # Get input
         actor_input = await Actor.get_input() or {}
-        domain = actor_input.get('domain', '')
-
-        # Validate domain
-        try:
-            domain = await validate_domain(domain)
-            Actor.log.info(f'Starting company research for domain: {domain}')
-        except ValueError as e:
-            Actor.log.error(f"Domain validation failed: {str(e)}")
-            await Actor.push_data({
-                "status": "error",
-                "message": str(e)
-            })
+        domain = actor_input.get('domain')
+        # print(domain)
         
-        # Gather company information from multiple sources
-        try:
-            # Get recent news
-            # Create tasks for parallel execution
-            news_task = asyncio.create_task(get_company_news(Actor, domain))
-            profiles_task = asyncio.create_task(get_professional_profiles(Actor, domain))
+        if not domain:
+            raise ValueError("Domain name is required")
 
-            # Wait for both tasks to complete
-            news_articles, professional_profiles = await asyncio.gather(news_task, profiles_task)
+        domain = await validate_domain(domain)
 
-            Actor.log.info(f'Collected {len(news_articles)} news articles')
-            Actor.log.info(f'Found total social profiles: {len(professional_profiles)}')
+        # Initialize and run the CrewAI crew with the actor instance
+        research_crew = CompanyResearchCrew(actor=actor)
+        result = research_crew.crew().kickoff(inputs={'domain': domain})
+        response = {
+            "domain": domain,
+            "report": result,
+        }
+        dataset = await Actor.open_dataset(name='agent-data')
+        await dataset.push_data(response)
+        await dataset.export_to(
+            key="company-report.csv",
+            format="csv",
+            include_content=True,
+            to_key_value_store_name='agent-data'
+        )
 
-            # Compile final results
-            result = {
-                "domain": domain,
-                "recent_news": news_articles,
-            }
-
-
-            # Prepare tasks for parallel execution
-            tasks = []
-            if professional_profiles.get('linkedin'):
-                tasks.append(scrape_linkedin_company(Actor, professional_profiles['linkedin']))
-            if professional_profiles.get('crunchbase'):
-                tasks.append(scrape_crunchbase_org(Actor, professional_profiles['crunchbase']))
-            if professional_profiles.get('pitchbook'):
-                tasks.append(get_pitchbook_profile(Actor, professional_profiles['pitchbook']))
-
-            # Run tasks in parallel
-            results = await asyncio.gather(*tasks)
-
-            # Process results
-            linkedin_data, crunchbase_data, pitchbook_data = {}, {}, {}
-            for result in results:
-                if isinstance(result, dict):
-                    result_type = result.get('result_type', None)
-                    if result_type == "linkedin":
-                        linkedin_data = result
-                        Actor.log.info('LinkedIn data collection complete')
-                    elif result_type == "crunchbase":
-                        crunchbase_data = result
-                        crunchbase_data['funding_timeline'] = get_funding_timeline(crunchbase_data)
-                        Actor.log.info(f'Crunchbase data collected with {len(crunchbase_data.get("funding_timeline", []))} funding rounds')
-                    elif result_type == "pitchbook":
-                        pitchbook_data = result
-                        Actor.log.info('Pitchbook data collection complete')
-            # Log if any data wasn't collected
-            if not linkedin_data:
-                Actor.log.info('No LinkedIn profile found or data collection failed')
-            if not crunchbase_data:
-                Actor.log.info('No Crunchbase profile found or data collection failed')
-            if not pitchbook_data:
-                Actor.log.info('No Pitchbook profile found or data collection failed')
-
-            # Compile final results with new data
-            result.update({
-                "linkedin_url": professional_profiles.get('linkedin', ''),
-                "pitchbook_url": professional_profiles.get('pitchbook', ''),
-                "crunchbase_url": professional_profiles.get('crunchbase', ''),
-                "linkedin_data": linkedin_data,
-                "pitchbook_data": pitchbook_data,
-                "crunchbase_data": crunchbase_data,
-                "funding_analysis": {
-                    "total_raised": sum(round['amount'] for round in crunchbase_data.get('funding_timeline', [])),
-                    "rounds": crunchbase_data.get('funding_timeline', []),
-                    "valuation": crunchbase_data.get('key_metrics', {}).get('valuation')
-                }
-            })
-
-            # Generate company report
-            Actor.log.info('Generating comprehensive company report...')
-            report, tokens_used = generate_company_report(result)
-            result['generated_report'] = report
-            Actor.log.info('Report generation complete')
-            await Actor.charge(event_name="generate_report")
-
-            # await Actor.push_data(result)
-            report = {
-                "domain": domain,
-                "generated_report": report
-            }
-            await Actor.push_data(report)
-            Actor.log.info('Company research completed successfully')
+        # result = extract_dict_from_json(result)
+        # Save the results
+        await Actor.push_data(response)
         
-        except Exception as e:
-            Actor.log.error(f'Error during company research: {str(e)}')
-            import traceback
-            Actor.log.error(f'Traceback: {traceback.format_exc()}')
-            await Actor.push_data({
-                "status": "error",
-                "message": str(e)
-            })
+        # Log completion
+        Actor.log.info("Company research completed successfully")
 

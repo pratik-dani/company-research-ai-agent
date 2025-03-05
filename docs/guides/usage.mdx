@@ -1,0 +1,166 @@
+---
+title: 'Usage Guide'
+description: 'Learn how to effectively use the Company Research & Analysis Agent'
+---
+
+# Usage Guide
+
+This guide explains how to effectively use the Company Research & Analysis Agent for various use cases.
+
+## Basic Usage
+
+### 1. Single Company Research
+
+```python
+from apify_client import ApifyClient
+
+client = ApifyClient('YOUR_API_TOKEN')
+
+# Run the actor
+run = client.actor('pratikdani/company-research-analysis-agent').call(
+    run_input={'domain': 'apple.com'}
+)
+
+# Get results
+results = client.dataset(run['defaultDatasetId']).list_items().items
+```
+
+### 2. Batch Processing
+
+```python
+domains = ['apple.com', 'microsoft.com', 'google.com']
+
+async def process_companies(domains):
+    results = []
+    for domain in domains:
+        run = await client.actor('pratikdani/company-research-analysis-agent').call(
+            run_input={'domain': domain}
+        )
+        results.append(run)
+    return results
+```
+
+## Advanced Usage
+
+### 1. Custom Data Processing
+
+```python
+def process_company_data(data):
+    # Extract specific fields
+    company_info = {
+        'name': data['linkedin_data'].get('name'),
+        'funding': data['funding_analysis'].get('total_raised'),
+        'employees': data['linkedin_data'].get('employee_count'),
+        'recent_news': len(data['recent_news'])
+    }
+    return company_info
+```
+
+### 2. Report Generation
+
+```python
+def generate_custom_report(data):
+    # Create custom report format
+    report = f"""
+    # {data['linkedin_data'].get('name')} Analysis
+    
+    ## Key Metrics
+    - Funding: ${data['funding_analysis'].get('total_raised'):,}
+    - Employees: {data['linkedin_data'].get('employee_count')}
+    - Latest Round: {data['funding_analysis'].get('largest_round', {}).get('type')}
+    
+    ## Recent News
+    {format_news(data['recent_news'])}
+    """
+    return report
+```
+
+## Best Practices
+
+### 1. Error Handling
+
+```python
+try:
+    run = client.actor('pratikdani/company-research-analysis-agent').call(
+        run_input={'domain': domain}
+    )
+except Exception as e:
+    logger.error(f"Error processing {domain}: {str(e)}")
+    # Implement retry logic or fallback
+```
+
+### 2. Data Validation
+
+```python
+def validate_results(data):
+    required_fields = [
+        'linkedin_data',
+        'funding_analysis',
+        'recent_news'
+    ]
+    
+    return all(field in data for field in required_fields)
+```
+
+### 3. Rate Limiting
+
+```python
+import time
+from ratelimit import limits, sleep_and_retry
+
+@sleep_and_retry
+@limits(calls=30, period=60)
+def rate_limited_api_call(domain):
+    return client.actor('pratikdani/company-research-analysis-agent').call(
+        run_input={'domain': domain}
+    )
+```
+
+## Common Use Cases
+
+### 1. Investment Research
+
+```python
+def analyze_investment_potential(data):
+    metrics = {
+        'funding_history': data['funding_analysis']['funding_timeline'],
+        'growth_rate': calculate_growth_rate(data),
+        'market_presence': analyze_market_presence(data),
+        'risk_factors': identify_risk_factors(data)
+    }
+    return metrics
+```
+
+### 2. Competitive Analysis
+
+```python
+def compare_companies(company_data_list):
+    comparison = {
+        'funding': {},
+        'employees': {},
+        'market_presence': {}
+    }
+    
+    for data in company_data_list:
+        company = data['linkedin_data']['name']
+        comparison['funding'][company] = data['funding_analysis']['total_raised']
+        comparison['employees'][company] = data['linkedin_data']['employee_count']
+    
+    return comparison
+```
+
+### 3. Market Research
+
+```python
+def analyze_market_trends(company_data_list):
+    trends = {
+        'total_funding': sum(d['funding_analysis']['total_raised'] for d in company_data_list),
+        'avg_company_size': calculate_average_size(company_data_list),
+        'common_investors': find_common_investors(company_data_list)
+    }
+    return trends
+```
+
+<Note>
+Remember to handle API rate limits and implement appropriate error handling in production environments.
+</Note>

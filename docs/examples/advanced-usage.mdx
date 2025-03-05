@@ -1,0 +1,209 @@
+---
+title: 'Advanced Usage Examples'
+description: 'Advanced examples and patterns for the Company Research & Analysis Agent'
+---
+
+# Advanced Usage Examples
+
+These examples demonstrate more complex use cases and integration patterns for the Company Research & Analysis Agent.
+
+## Competitive Analysis
+
+Compare multiple companies in the same industry:
+
+```python
+from apify_client import ApifyClient
+import pandas as pd
+import asyncio
+
+async def analyze_competitors(domains):
+    client = ApifyClient('YOUR_API_TOKEN')
+    results = []
+    
+    for domain in domains:
+        run = await client.actor('pratikdani/company-research-analysis-agent').call(
+            run_input={'domain': domain}
+        )
+        data = await client.dataset(run['defaultDatasetId']).list_items()
+        results.append(data.items[0])
+    
+    # Create comparison dataframe
+    comparison = pd.DataFrame([{
+        'Company': d['linkedin_data'].get('name'),
+        'Employees': d['linkedin_data'].get('employee_count'),
+        'Total Funding': d['funding_analysis'].get('total_raised'),
+        'Last Round': d['funding_analysis'].get('largest_round', {}).get('amount'),
+        'Round Type': d['funding_analysis'].get('largest_round', {}).get('type'),
+        'News Mentions': len(d['recent_news'])
+    } for d in results])
+    
+    return comparison
+
+# Example usage
+competitors = ['slack.com', 'discord.com', 'teams.microsoft.com']
+comparison = asyncio.run(analyze_competitors(competitors))
+print(comparison)
+```
+
+## Investment Analysis
+
+Analyze investment opportunities with custom metrics:
+
+```python
+def analyze_investment_potential(data):
+    # Calculate growth metrics
+    funding_rounds = data['funding_analysis']['funding_timeline']
+    employee_count = data['linkedin_data']['employee_count']
+    news_sentiment = analyze_news_sentiment(data['recent_news'])
+    
+    # Create investment score
+    metrics = {
+        'growth_score': calculate_growth_score(funding_rounds),
+        'market_presence': assess_market_presence(employee_count),
+        'news_sentiment': news_sentiment,
+        'risk_factors': identify_risks(data)
+    }
+    
+    return metrics
+
+def calculate_growth_score(funding_rounds):
+    if not funding_rounds:
+        return 0
+        
+    # Calculate funding growth rate
+    amounts = [round['amount'] for round in funding_rounds]
+    times = [pd.to_datetime(round['date']) for round in funding_rounds]
+    
+    if len(amounts) < 2:
+        return amounts[0] if amounts else 0
+        
+    growth_rates = []
+    for i in range(1, len(amounts)):
+        time_diff = (times[i] - times[i-1]).days / 365
+        if time_diff > 0:
+            growth_rate = (amounts[i] - amounts[i-1]) / time_diff
+            growth_rates.append(growth_rate)
+            
+    return sum(growth_rates) / len(growth_rates) if growth_rates else 0
+
+# Example usage
+client = ApifyClient('YOUR_API_TOKEN')
+run = client.actor('pratikdani/company-research-analysis-agent').call(
+    run_input={'domain': 'startup.com'}
+)
+data = client.dataset(run['defaultDatasetId']).list_items().items[0]
+investment_analysis = analyze_investment_potential(data)
+```
+
+## Market Research Dashboard
+
+Create a dashboard for market analysis:
+
+```python
+import streamlit as st
+import plotly.express as px
+from apify_client import ApifyClient
+
+def create_market_dashboard(domains):
+    client = ApifyClient('YOUR_API_TOKEN')
+    market_data = []
+    
+    for domain in domains:
+        run = client.actor('pratikdani/company-research-analysis-agent').call(
+            run_input={'domain': domain}
+        )
+        data = client.dataset(run['defaultDatasetId']).list_items().items[0]
+        market_data.append(data)
+    
+    # Create dashboard
+    st.title('Market Research Dashboard')
+    
+    # Funding Overview
+    funding_data = pd.DataFrame([{
+        'Company': d['linkedin_data'].get('name'),
+        'Total Funding': d['funding_analysis'].get('total_raised')
+    } for d in market_data])
+    
+    st.header('Funding Overview')
+    fig = px.bar(funding_data, x='Company', y='Total Funding')
+    st.plotly_chart(fig)
+    
+    # Employee Growth
+    employee_data = pd.DataFrame([{
+        'Company': d['linkedin_data'].get('name'),
+        'Employees': d['linkedin_data'].get('employee_count')
+    } for d in market_data])
+    
+    st.header('Company Size Comparison')
+    fig = px.pie(employee_data, values='Employees', names='Company')
+    st.plotly_chart(fig)
+    
+    # News Analysis
+    st.header('Recent News Activity')
+    for data in market_data:
+        company = data['linkedin_data'].get('name')
+        news_count = len(data['recent_news'])
+        st.subheader(f"{company}: {news_count} recent news items")
+        
+        for news in data['recent_news'][:3]:
+            st.write(f"- {news['title']}")
+
+# Run the dashboard
+domains = ['company1.com', 'company2.com', 'company3.com']
+create_market_dashboard(domains)
+```
+
+## Custom Report Generation
+
+Generate specialized reports:
+
+```python
+def generate_custom_report(data, report_type='executive'):
+    if report_type == 'executive':
+        return generate_executive_summary(data)
+    elif report_type == 'financial':
+        return generate_financial_report(data)
+    elif report_type == 'technical':
+        return generate_technical_analysis(data)
+    else:
+        raise ValueError(f"Unknown report type: {report_type}")
+
+def generate_executive_summary(data):
+    company = data['linkedin_data'].get('name')
+    return f"""
+    # Executive Summary: {company}
+    
+    ## Company Overview
+    - Industry: {data['linkedin_data'].get('industry')}
+    - Founded: {data['linkedin_data'].get('founded')}
+    - Employees: {data['linkedin_data'].get('employee_count')}
+    
+    ## Key Metrics
+    - Total Funding: ${data['funding_analysis'].get('total_raised'):,}
+    - Latest Round: {data['funding_analysis'].get('largest_round', {}).get('type')}
+    - Key Markets: {', '.join(data['linkedin_data'].get('specialties', []))}
+    
+    ## Recent Developments
+    {format_recent_news(data['recent_news'][:3])}
+    
+    ## Strategic Recommendations
+    {generate_recommendations(data)}
+    """
+
+# Example usage
+client = ApifyClient('YOUR_API_TOKEN')
+run = client.actor('pratikdani/company-research-analysis-agent').call(
+    run_input={'domain': 'target.com'}
+)
+data = client.dataset(run['defaultDatasetId']).list_items().items[0]
+
+# Generate different report types
+executive_report = generate_custom_report(data, 'executive')
+financial_report = generate_custom_report(data, 'financial')
+technical_report = generate_custom_report(data, 'technical')
+```
+
+<Note>
+These examples assume you have the required Python packages installed (pandas, streamlit, plotly).
+They can be customized further based on specific needs.
+</Note>

@@ -1,0 +1,81 @@
+---
+title: 'Getting Started'
+description: 'Learn how to use the Company Research & Analysis Agent'
+---
+
+# Getting Started
+
+This guide will help you start using the Company Research & Analysis Agent to gather comprehensive company information.
+
+## Prerequisites
+
+- An [Apify account](https://console.apify.com/sign-up)
+- API token from your Apify account (if using programmatically)
+
+## Quick Start
+
+### Using the Web Interface
+
+1. Visit the [actor page](https://apify.com/pratikdani/company-research-analysis-agent)
+2. Click "Try for Free" or "Use with Custom Data"
+3. Enter a company domain (e.g., `apple.com`)
+4. Click "Start"
+5. Wait for the results to be generated
+
+### Using the Apify API
+
+```bash
+curl --request POST \
+  --url https://api.apify.com/v2/acts/pratikdani~company-research-analysis-agent/runs?token=YOUR_API_TOKEN \
+  --header 'content-type: application/json' \
+  --data '{
+    "domain": "apple.com"
+  }'
+```
+
+### Using Python SDK
+
+```python
+from apify_client import ApifyClient
+
+client = ApifyClient('YOUR_API_TOKEN')
+
+run_input = {
+    'domain': 'apple.com'
+}
+
+run = client.actor('pratikdani/company-research-analysis-agent').call(run_input=run_input)
+```
+
+## Understanding Results
+
+The actor provides two main views of the results:
+
+### 1. Company Report View
+
+A comprehensive markdown report containing:
+- Company overview
+- Products and services
+- Market presence
+- Key personnel
+- Financial metrics
+- Recent developments
+
+### 2. Raw Data View
+
+Structured data including:
+- LinkedIn profile data
+- PitchBook investment data
+- Crunchbase company data
+- Recent news articles
+- Funding analysis
+
+## Next Steps
+
+- Learn about [configuration options](/guides/configuration)
+- Explore [usage examples](/examples/basic-usage)
+- Read the [API reference](/api-reference/overview)
+
+<Note>
+Remember to respect websites' terms of service and rate limits when using this actor.
+</Note>

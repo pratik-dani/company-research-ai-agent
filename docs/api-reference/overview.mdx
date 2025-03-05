@@ -1,0 +1,71 @@
+---
+title: 'API Reference'
+description: 'Complete API reference for the Company Research & Analysis Agent'
+---
+
+# API Reference
+
+The Company Research & Analysis Agent provides a RESTful API through the Apify platform. This reference documents all available endpoints, parameters, and response formats.
+
+## Authentication
+
+All API requests require authentication using your Apify API token. You can find your API token in the [Apify Console](https://console.apify.com/account/integrations).
+
+```bash
+# Include your API token in the request URL
+https://api.apify.com/v2/acts/pratikdani~company-research-analysis-agent/runs?token=YOUR_API_TOKEN
+```
+
+## Base URL
+
+```
+https://api.apify.com/v2/acts/pratikdani~company-research-analysis-agent
+```
+
+## Endpoints
+
+### Start a Run
+
+```http
+POST /runs
+```
+
+Starts a new actor run with the provided input.
+
+### Get Run Status
+
+```http
+GET /runs/{runId}
+```
+
+Retrieves the status of a specific actor run.
+
+### Get Run Results
+
+```http
+GET /runs/{runId}/dataset/items
+```
+
+Retrieves the results of a completed actor run.
+
+## Rate Limits
+
+The actor is subject to Apify's standard rate limits:
+- Maximum 5 concurrent actor runs per user
+- Maximum runtime of 24 hours per run
+
+## Error Handling
+
+The API uses standard HTTP response codes:
+- 200: Success
+- 400: Bad request
+- 401: Unauthorized
+- 429: Too many requests
+- 500: Internal server error
+
+## SDKs and Libraries
+
+Official SDKs are available for:
+- [Python](https://docs.apify.com/apify-client-python)
+- [JavaScript](https://docs.apify.com/apify-client-js)
+- [Other languages](https://docs.apify.com/api/client)
