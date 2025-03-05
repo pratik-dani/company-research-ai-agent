@@ -13,7 +13,7 @@
   "topbarLinks": [
     {
       "name": "Support",
-      "url": "mailto:support@example.com"
+      "url": "mailto:pratik@datamagnet.co"
     }
   ],
   "topbarCtaButton": {
@@ -28,7 +28,7 @@
     },
     {
       "name": "Architecture",
-      "icon": "square-stack",
+      "icon": "sitemap",
       "url": "architecture"
     },
     {
