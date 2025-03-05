@@ -61,7 +61,7 @@ The system uses CrewAI to coordinate three specialized agents:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/company-research.git
+git clone https://github.com/pratik-dani/company-research.git
 cd company-research
 ```
 
