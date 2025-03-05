@@ -61,14 +61,14 @@
           ]
         },
         {
-          "anchor": "Examples",
+          "anchor": "Usage",
           "icon": "code",
           "groups": [
             {
-              "group": "Examples",
+              "group": "usage",
               "pages": [
-                "examples/basic-usage",
-                "examples/advanced-usage"
+                "usage/basic-usage",
+                "usage/advanced-usage"
               ]
             }
           ]
