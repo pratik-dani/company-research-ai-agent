@@ -25,11 +25,16 @@ flowchart TB
     C --> G[Data Tools]
     G --> H[(External APIs)]
     
-    style crew fill:#fff3e0,stroke:#e65100
-    style A fill:#e1f5fe,stroke:#01579b
-    style F fill:#fce4ec,stroke:#880e4f
-    style G fill:#f3e5f5,stroke:#4a148c
-    style H fill:#e8f5e9,stroke:#1b5e20
+    classDef default fill:#2D3748,stroke:#4A5568,color:#fff
+    classDef crew fill:#2D3748,stroke:#4A5568,color:#fff
+    classDef highlight fill:#3182CE,stroke:#2B6CB0,color:#fff
+    classDef llm fill:#B83280,stroke:#97266D,color:#fff
+    classDef api fill:#2F855A,stroke:#276749,color:#fff
+    
+    class A highlight
+    class B,C,D,E crew
+    class F llm
+    class G,H api
 ```
 
 ## Key Features
