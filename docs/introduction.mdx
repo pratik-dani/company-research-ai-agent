@@ -24,13 +24,40 @@ The Company Research & Analysis Agent is a powerful AI-driven tool that performs
   </Card>
 </CardGroup>
 
+## System Architecture
+
+```mermaid
+flowchart TB
+    A[Web/SDK] --> B
+    
+    subgraph crew[CrewAI System]
+        B[Research Crew]
+        B --> C[Research]
+        B --> D[Analysis]
+        B --> E[Report]
+        
+        C & D & E -.-> F[Gemini LLM]
+    end
+    
+    C --> G[Data Tools]
+    G --> H[(External APIs)]
+    
+    style crew fill:#fff3e0,stroke:#e65100
+    style A fill:#e1f5fe,stroke:#01579b
+    style F fill:#fce4ec,stroke:#880e4f
+    style G fill:#f3e5f5,stroke:#4a148c
+    style H fill:#e8f5e9,stroke:#1b5e20
+```
+
 ## How It Works
 
-The agent uses CrewAI to coordinate three specialized AI agents:
-
-1. **Research Specialist**: Gathers comprehensive company information using custom tools
-2. **Data Analyst**: Processes and analyzes the collected data
-3. **Report Writer**: Compiles findings into structured reports
+1. User accesses the system via web interface or Python SDK
+2. The CrewAI system coordinates three specialized agents:
+   - Research agent collects company data
+   - Analysis agent processes findings
+   - Report agent creates final output
+3. Data tools connect to external services (LinkedIn, Crunchbase, etc.)
+4. Gemini LLM powers all agent decisions and analysis
 
 ## Use Cases
 
